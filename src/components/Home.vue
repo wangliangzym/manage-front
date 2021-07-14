@@ -12,14 +12,8 @@
       <el-aside :width="isCollapse ? '64px':'200px'">
         <!-- 侧边栏菜单区 -->
         <div class="toggle-button" @click="toggleCollapse">|||</div>
-        <el-menu
-          background-color="#333744"
-          text-color="#fff"
-          active-text-color="#409EFF"
-          :unique-opened="true"
-          :collapse="isCollapse"
-          :collapse-transition="false"
-        >
+        <el-menu background-color="#333744" text-color="#fff" active-text-color="#409EFF" :unique-opened="true"
+          :collapse="isCollapse" :collapse-transition="false" router :default-active="activePath">
           <!-- 一级菜单 -->
           <el-submenu :index="item.id + ''" v-for="item in menulist" :key="item.id">
             <!-- 一级菜单模板区域 -->
@@ -31,7 +25,8 @@
             </template>
 
             <!-- 二级菜单 -->
-            <el-menu-item :index="subItem.id + ''" v-for="subItem in item.childList" :key="subItem.id">
+            <el-menu-item :index="subItem.path + ''" v-for="subItem in item.childList" :key="subItem.id"
+              @click="saveNavState(subItem.path)">
               <template slot="title">
                 <!-- 图标 -->
                 <i :class="subItem.icon"></i>
@@ -52,69 +47,77 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      //左侧菜单数据
-      menulist: [],
-      isCollapse: false
-    } 
-  },
-  created() {
-    this.getMenuList()
-  },
-  // 获取所有的菜单
-  methods: {
-    async getMenuList() {
-      const { data: res } = await this.$http.get('/menu/getMenuList')
-      if (res.code !== 200) return this.$message.error(res.msg)
-      this.menulist = res.data
+  export default {
+    data() {
+      return {
+        //左侧菜单数据
+        menulist: [],
+        isCollapse: false,
+        //菜单激活路径
+        activePath: ''
+      }
     },
-    // 菜单栏折叠
-    toggleCollapse() {
-      this.isCollapse = ! this.isCollapse
-    }
-  },
-}
+    created() {
+      this.getMenuList(),
+      this.activePath = window.sessionStorage.getItem("activePath")
+    },
+    // 获取所有的菜单
+    methods: {
+      async getMenuList() {
+        const { data: res } = await this.$http.get('/menu/getMenuList')
+        if (res.code !== 200) return this.$message.error(res.msg)
+        this.menulist = res.data
+      },
+      // 菜单栏折叠
+      toggleCollapse() {
+        this.isCollapse = !this.isCollapse
+      },
+      //菜单激活状态
+      saveNavState(activePath) {
+        window.sessionStorage.setItem('activePath',activePath)
+        this.activePath = activePath
+      }
+    },
+  }
 </script>
 
 <style lang="less" scoped>
-.home-container {
-  height: 100%;
-}
+  .home-container {
+    height: 100%;
+  }
 
-.el-header {
-  background-color: #373d41;
-  display: flex;
-  justify-content: space-between;
-  color: #ffffff;
-  font-size: 25px;
-  > div {
+  .el-header {
+    background-color: #373d41;
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+    color: #ffffff;
+    font-size: 25px;
+
+    >div {
+      display: flex;
+      align-items: center;
+    }
   }
-}
 
-.el-aside {
-  background-color: #333744;
-  .el-menu {
-    border-right: none;
+  .el-aside {
+    background-color: #333744;
+
+    .el-menu {
+      border-right: none;
+    }
   }
-}
 
-.el-main {
-  background-color: #eaedf1;
-}
+  .el-main {
+    background-color: #eaedf1;
+  }
 
-.toggle-button {
-  background-color: #4A5064;
-  font-size: 10px;
-  line-height: 24px;
-  color: #fff;
-  text-align: center;
-  letter-spacing: 0.2em;
-  cursor: pointer;
-}
+  .toggle-button {
+    background-color: #4A5064;
+    font-size: 10px;
+    line-height: 24px;
+    color: #fff;
+    text-align: center;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+  }
 </style>
-
- 
