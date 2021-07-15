@@ -50,14 +50,14 @@
                 type="primary"
                 icon="el-icon-edit"
                 size="mini"
+                @click="showEditDialogVisible(scope.row.id)"
               ></el-button>
             </el-tooltip>
             <el-tooltip
               effect="dark"
               content="修改"
               placement="top"
-              :enterable="false"
-            >
+              :enterable="false">
               <!-- 删除按钮 -->
               <el-button
                 type="danger"
@@ -85,7 +85,7 @@
       <el-dialog
         title="添加用户"
         :visible.sync="addDialogVisible" width="50%" @close="addDialogClose">
-        <el-form :model="addForm" :rules="addRules" ref="addFormRef" label-width="80px">
+        <el-form :model="addForm" :rules="addRules" ref="addFormRef" label-width="70px">
             <el-form-item label="客户姓名" prop="customerName">
                 <el-input v-model="addForm.customerName"></el-input>
             </el-form-item>
@@ -103,6 +103,32 @@
         <span slot="footer" class="dialog-footer">
           <el-button @click="addDialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="addUser">确 定</el-button>
+        </span>
+      </el-dialog>
+
+      <!-- 编辑用户对话框 -->
+      <el-dialog
+        title="编辑客户"
+        :visible.sync="editDialogVisible"
+        width="50%">
+        
+        <el-form :model="editForm" :rules="editRules" ref="editFormRef" label-width="70px">
+          <el-form-item label="客户名称">
+            <el-input v-model="editForm.customerName"></el-input>
+          </el-form-item>
+          <el-form-item label="电话">
+            <el-input v-model="editForm.tel"></el-input>
+          </el-form-item>
+          <el-form-item label="客户类型">
+            <el-input v-model="editForm.customerType"></el-input>
+          </el-form-item>
+          <el-form-item label="地址">
+            <el-input v-model="editForm.address"></el-input>
+          </el-form-item>
+        </el-form>  
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="editDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="editDialogVisible = false">确 定</el-button>
         </span>
       </el-dialog>
     </el-card>
@@ -137,7 +163,19 @@ export default {
           },{
               min: 1, max: 10, message: "用户名长度在3-10之间", trigger: 'blur'
           }]
-      }
+      },
+      //编辑客户对话框显示与隐藏
+      editDialogVisible: false,
+      editForm: {
+        customerName: ""
+      },
+      editRules: {
+          customerName: [{
+              required: true, message: "请输入客户姓名", trigger: 'blur'
+          },{
+              min: 1, max: 10, message: "用户名长度在3-10之间", trigger: 'blur'
+          }]
+      },
     }
   },
   
@@ -177,19 +215,30 @@ export default {
     },
     //添加用户
     addUser(){
-         this.$refs.addFormRef.validate(async valid => {
-            //  console.log(valid)
-            if(!valid) return
-            //添加用户网络请求
-            const {data: res} = await this.$http.post('/customer/addCustomer', this.addForm)
-            if(res.code !== 200) {
-                this.$message.error("添加用户失败！")
-            }
-            this.$message.success("添加用户成功！")
-            this.addDialogVisible = false
-            //重新获取用户列表数据
-            this.getUserList()
-         })
+      this.$refs.addFormRef.validate(async valid => {
+        //  console.log(valid)
+        if(!valid) return
+        //添加用户网络请求
+        const {data: res} = await this.$http.post('/customer/addCustomer', this.addForm)
+        if(res.code !== 200) {
+          return this.$message.error("添加用户失败！")
+        }
+        this.$message.success("添加用户成功！")
+        this.addDialogVisible = false
+        //重新获取用户列表数据
+        this.getUserList()
+      })
+    },
+    //编辑用户对话框
+    async showEditDialogVisible(id) {
+      console.log(id)
+      const {data: res} = await this.$http.get("/customer/getById?id=" + id)
+      console.log(res)
+      if(res.code !== 200){
+        return this.$message.error("添加用户失败！")
+      }
+      this.editForm = res.data
+      this.editDialogVisible = true
     }
   }
 }
