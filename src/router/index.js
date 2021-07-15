@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 import Login from '../components/Login.vue'
 import Home from '../components/Home.vue'
 import Welcome from '../components/Welcome.vue'
-import User from '../components/user/User.vue'
+import Customer from '../components/user/Customer.vue'
 
 Vue.use(VueRouter)
 
@@ -22,8 +22,8 @@ export default new VueRouter({
         component: Welcome
       },
       {
-        path: '/users',
-        component: User
+        path: '/customers',
+        component: Customer
       }
     ]
   }
