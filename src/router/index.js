@@ -4,6 +4,8 @@ import Login from '../components/Login.vue'
 import Home from '../components/Home.vue'
 import Welcome from '../components/Welcome.vue'
 import Customer from '../components/user/Customer.vue'
+import Receive from '../components/goods/Receive.vue'
+import Send from '../components/goods/Send.vue'
 
 Vue.use(VueRouter)
 
@@ -24,6 +26,14 @@ export default new VueRouter({
       {
         path: '/customers',
         component: Customer
+      },
+      {
+        path: '/goodsReceiveList',
+        component: Receive
+      },
+      {
+        path: '/goodsSendList',
+        component: Send
       }
     ]
   }

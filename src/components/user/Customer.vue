@@ -55,7 +55,7 @@
             </el-tooltip>
             <el-tooltip
               effect="dark"
-              content="修改"
+              content="删除"
               placement="top"
               :enterable="false">
               <!-- 删除按钮 -->
@@ -63,6 +63,7 @@
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
+                @click="deleteCustomerInfo(scope.row.id)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -85,7 +86,7 @@
       <el-dialog
         title="添加用户"
         :visible.sync="addDialogVisible" width="50%" @close="addDialogClose">
-        <el-form :model="addForm" :rules="addRules" ref="addFormRef" label-width="70px">
+        <el-form :model="addForm" :rules="addRules" ref="addFormRef" label-width="80px">
             <el-form-item label="客户姓名" prop="customerName">
                 <el-input v-model="addForm.customerName"></el-input>
             </el-form-item>
@@ -104,31 +105,29 @@
           <el-button @click="addDialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="addUser">确 定</el-button>
         </span>
-      </el-dialog>
+     </el-dialog>
 
       <!-- 编辑用户对话框 -->
       <el-dialog
         title="编辑客户"
-        :visible.sync="editDialogVisible"
-        width="50%">
-        
-        <el-form :model="editForm" :rules="editRules" ref="editFormRef" label-width="70px">
-          <el-form-item label="客户名称">
+        :visible.sync="editDialogVisible" width="50%" @close="editDialogClose">
+        <el-form :model="editForm" :rules="editRules" ref="editFormRef" label-width="80px">
+          <el-form-item label="客户名称" prop="customerName">
             <el-input v-model="editForm.customerName"></el-input>
           </el-form-item>
-          <el-form-item label="电话">
+          <el-form-item label="电话"  prop="tel">
             <el-input v-model="editForm.tel"></el-input>
           </el-form-item>
-          <el-form-item label="客户类型">
+          <el-form-item label="客户类型" prop="customerType">
             <el-input v-model="editForm.customerType"></el-input>
           </el-form-item>
-          <el-form-item label="地址">
+          <el-form-item label="地址"  prop="address">
             <el-input v-model="editForm.address"></el-input>
           </el-form-item>
         </el-form>  
         <span slot="footer" class="dialog-footer">
           <el-button @click="editDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="editDialogVisible = false">确 定</el-button>
+          <el-button type="primary" @click="editUserInfo">确 定</el-button>
         </span>
       </el-dialog>
     </el-card>
@@ -167,7 +166,10 @@ export default {
       //编辑客户对话框显示与隐藏
       editDialogVisible: false,
       editForm: {
-        customerName: ""
+        customerName: '',
+        tel: '',
+        customerType: '',
+        address: ''
       },
       editRules: {
           customerName: [{
@@ -231,7 +233,7 @@ export default {
     },
     //编辑用户对话框
     async showEditDialogVisible(id) {
-      console.log(id)
+      // console.log(id)
       const {data: res} = await this.$http.get("/customer/getById?id=" + id)
       console.log(res)
       if(res.code !== 200){
@@ -239,6 +241,48 @@ export default {
       }
       this.editForm = res.data
       this.editDialogVisible = true
+    },
+    //重置编辑对话框
+    editDialogClose() {
+      this.$refs.editFormRef.resetFields()
+    },
+    //修改用户信息并提交
+    editUserInfo() {
+      this.$refs.editFormRef.validate(async valid => {
+        // console.log(valid)
+        if(!valid) return
+        //发起修改用户信息的数据请求
+        const {data: res} = await this.$http.post("/customer/edit",this.editForm)
+        if(res.code !== 200){
+          this.$message.error("编辑失败！")
+        }
+        this.$message.success("编辑成功！")
+        //关闭对话框
+        this.editDialogVisible = false
+        //刷新数据
+        this.getUserList()
+      })
+    },
+    //删除用户信息
+    async deleteCustomerInfo(id) {
+      //对话框提示信息
+      const confirmResult = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+
+      if(confirmResult !== 'confirm'){
+        return this.$message.info("已经取消删除！")
+      }
+
+      //发送请求
+      const {data: res} = await this.$http.delete("/customer/deleteById/" + id)
+      if(res.code !== 200){
+        return this.$message.error("删除失败！")
+      }
+      this.$message.success("删除成功！")
+      this.getUserList()
     }
   }
 }
