@@ -34,37 +34,25 @@
         <el-table-column type="index"></el-table-column>
         <el-table-column label="姓名" prop="customerName"></el-table-column>
         <el-table-column label="电话" prop="tel"></el-table-column>
-        <el-table-column label="客户类型" prop="customerType"></el-table-column>
+        <el-table-column label="客户类型" prop="customerType">
+          <template slot-scope="scope">
+            <span v-if="scope.row.customerType === 1">货源</span>
+            <span v-if="scope.row.customerType === 2">货主</span>
+          </template>
+        </el-table-column>
         <el-table-column label="客户地址" prop="address"></el-table-column>
         <el-table-column label="创建时间" prop="createTime"></el-table-column>
         <el-table-column label="操作" width="120px">
           <template slot-scope="scope">
-            <el-tooltip
-              effect="dark"
-              content="修改"
-              placement="top"
-              :enterable="false"
-            >
+            <el-tooltip effect="dark" content="修改" placement="top" :enterable="false">
               <!-- 修改按钮 -->
-              <el-button
-                type="primary"
-                icon="el-icon-edit"
-                size="mini"
-                @click="showEditDialogVisible(scope.row.id)"
-              ></el-button>
+              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialogVisible(scope.row.id)">
+              </el-button>
             </el-tooltip>
-            <el-tooltip
-              effect="dark"
-              content="删除"
-              placement="top"
-              :enterable="false">
+            <el-tooltip effect="dark" content="删除" placement="top" :enterable="false">
               <!-- 删除按钮 -->
-              <el-button
-                type="danger"
-                icon="el-icon-delete"
-                size="mini"
-                @click="deleteCustomerInfo(scope.row.id)"
-              ></el-button>
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteCustomerInfo(scope.row.id)">
+              </el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -262,6 +250,9 @@ export default {
         //刷新数据
         this.getUserList()
       })
+    },
+    a(value) {
+
     },
     //删除用户信息
     async deleteCustomerInfo(id) {
